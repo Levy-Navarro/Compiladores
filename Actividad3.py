@@ -1,4 +1,4 @@
-# Diccionario con las notas y acordes válidos para cada tonalidad
+#Diccionario con las notas y acordes válidos para cada tonalidad
 
 escalas = {
     'C mayor': {
@@ -86,40 +86,49 @@ escalas = {
     },
 }
 
+#Función para validar secuencias de notas y/o acordes
 def validar_secuencia(tonalidad, secuencia):
+    #Se recibe la tonalidad, es decir la nota y el tipo de nota, si no es valida, o sea, que esté dentro de las contempladas, retorna que no es valida
     datos = escalas.get(tonalidad)
     if not datos:
         return False, "Tonalidad no válida"
     
+    #A las notas validas llega el arreglo de todas las notas (segunda ramificación del automata)
     notas_validas = datos['notas']
+    #A los acordes validos llega el arreglo de todas los acordes (primera ramificación del automata)
     acordes_validos = datos['acordes'].union(datos['septimas'])
     
+    #Se lee la cantidad de caracteres que tiene cada elemento para diferenciar la rama
     es_validacion_notas = all(len(elemento) == 1 for elemento in secuencia)
     
+    #Si son puras notas entra aquí
     if es_validacion_notas:
         for nota in secuencia:
             if nota not in notas_validas:
                 return False, "Nota no válida: " + nota
         return True, "Secuencia de notas válida"
+    #De lo contrario entra acá
     else:
         for acorde in secuencia:
             if acorde not in acordes_validos:
                 return False, "Acorde no válido: " + acorde
         return True, "Secuencia de acordes válida"
     
-# Captura de la tonalidad
+#Captura de la tonalidad
 print("Ingrese la nota seguida de su tonalidad a la que pertenece su secuencia, ejemplo: C mayor")
 tonalidad = input()
 
-# Captura de la secuencia
+#Captura de la secuencia
 secuencia = []
 print("Ahora ingrese la secuencia que desea evaluar. Cuando ya no quiera ingresar más acordes o notas, ingrese '0'.")
+#Se crea un bucle para pdoer capturas las secuencias que quiera
 while True:
     elemento = input("Ingrese una nota o acorde (o '0' para terminar): ")
     if elemento == '0':
         break
+    #Se añade cada elemento que el usuario pone a la lista de secuencia
     secuencia.append(elemento)
 
-# Validación de la secuencia
+#Validación de la secuencia
 resultado, mensaje = validar_secuencia(tonalidad, secuencia)
 print(mensaje)
