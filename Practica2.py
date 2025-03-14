@@ -1,78 +1,93 @@
+#Importación de librería para las expresiones regulares
 import re
 
 tokens = []
-index = 0
+indice = 0
 
-def tokenize(expression):
-    token_spec = [
-        ("NUMBER", r'\d+'),         # Números
-        ("IDENTIFIER", r'[a-zA-Z][a-zA-Z0-9_]*'), # Identificadores
-        ("ASSIGN", r'='),           # Operador de asignación
-        ("PLUS", r'\+'),            # Suma
-        ("TIMES", r'\*'),           # Multiplicación
-        ("DIVIDE", r'/'),           # División
-        ("LPAREN", r'\('),          # Paréntesis izquierdo
-        ("RPAREN", r'\)'),          # Paréntesis derecho
-        ("SEMICOLON", r';'),        # Punto y coma
-        ("SKIP", r'[ \t\n]+'),      # Espacios y saltos de línea (ignorar)
-        ("MISMATCH", r'.')          # Cualquier otro carácter no válido
+#Funcion para recibir la expresion y encontrar coincidencias comparando la re que se hace aquí
+def tokenize(expresion):
+    tokens_especificos = [
+        ("Numero", r'\d+'),         #Números
+        ("Identificador", r'[a-zA-Z][a-zA-Z0-9_]*'), #Identificadores
+        ("Asignacion", r'='),           # Operador de asignación
+        ("Mas", r'\+'),            #Suma
+        ("Multi", r'\*'),           #Multiplicación
+        ("Division", r'/'),           #División
+        ("IParente", r'\('),          #Paréntesis izquierdo
+        ("DParente", r'\)'),          #Paréntesis derecho
+        ("PuYCo", r';'),        #Punto y coma
+        ("Salto", r'[ \t\n]+'),      #Espacios y saltos de línea (ignorar)
+        ("Restante", r'.')          #Cualquier otro carácter no válido
     ]
     
-    token_regex = '|'.join(f'(?P<{pair[0]}>{pair[1]})' for pair in token_spec)
+    #Fusion de las reglas de la parte superior
+    expresion_completa = '|'.join(f'(?P<{par[0]}>{par[1]})' for par in tokens_especificos)
     
-    for match in re.finditer(token_regex, expression):
-        kind = match.lastgroup
-        value = match.group()
-        if kind == "SKIP":
+    #Bucles para encontrar coincidencias en la expresión recibida respecto a la expresión fusionada (reglas)
+    for coincidencia in re.finditer(expresion_completa, expresion):
+        #Toma el nombre de la primer parte del diccionario
+        tipo = coincidencia.lastgroup
+        #Toma el nombre de la segunda parte del diccionario
+        valor = coincidencia.group()
+
+        #Si encuentra coincidencia con el tipo salto le permite continuar
+        if tipo == "Salto":
             continue
-        elif kind == "MISMATCH":
-            raise SyntaxError(f"Token inesperado: {value}")
-        tokens.append((kind, value))
+        #Si encuentra un error detecta el token que está mal
+        elif tipo == "Restante":
+            raise SyntaxError(f"Token inesperado: {valor}")
+        #Se añade a la lista de tokens la dupla del diccionario
+        tokens.append((tipo, valor))
 
-def match(expected_type):
-    global index
-    if index < len(tokens) and tokens[index][0] == expected_type:
-        index += 1
+#Funcion para detectar el tipo de token
+def coincidencia(tipo_esperado):
+    global indice
+    if indice < len(tokens) and tokens[indice][0] == tipo_esperado:
+        indice += 1
         return True
     return False
 
+#Función para detectar tipos de tokens iniciales del lado izquierdo y parentesis
 def factor():
-    if match("NUMBER") or match("IDENTIFIER"):
+    if coincidencia("Numero") or coincidencia("Identificador"):
         return True
-    elif match("LPAREN"):
-        if expression():
-            return match("RPAREN")
+    elif coincidencia("IParente"):
+        if expresion():
+            return coincidencia("DParente")
     return False
 
+#Función para detectar operadores
 def term():
     if factor():
-        while match("TIMES") or match("DIVIDE"):
+        while coincidencia("Multi") or coincidencia("Division"):
             if not factor():
                 return False
         return True
     return False
 
-def expression():
+def expresion():
     if term():
-        while match("PLUS"):
+        while coincidencia("Mas"):
             if not term():
                 return False
         return True
     return False
 
-def assignment():
-    if match("IDENTIFIER") and match("ASSIGN") and expression() and match("SEMICOLON"):
+#Funcipo para detectar asignaciones y terminaciones de instrucciones con punto y coma
+def asignacion():
+    if coincidencia("Identificador") and coincidencia("Asignacion") and expresion() and coincidencia("PuYCo"):
         return True
     return False
 
-def parse(code):
-    global tokens, index
+#Función para parsear la expresión (elementos en la lista de ejemplos)
+def parsear(codigo):
+    global tokens, indice
     tokens = []
-    index = 0
-    tokenize(code)
-    return assignment() and index == len(tokens)
+    indice = 0
+    tokenize(codigo)
+    return asignacion() and indice == len(tokens)
 
-# Pruebas
-examples = ["x = 5;", "y = x + 3;", "z = (y * 2) / 4;", "y = z + y;"]
-for example in examples:
-    print(f"{example} -> {'Válido' if parse(example) else 'Inválido'}")
+#Ejemplos
+ejemplos = ["x = 5;", "y = x + 3;", "z = (y * 2) / 4;", "y = z + y;"]
+for ejemplo in ejemplos:
+    print(f"{ejemplo} -> {'Válido' if parsear(ejemplo) else 'Inválido'}")
