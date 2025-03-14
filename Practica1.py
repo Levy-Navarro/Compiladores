@@ -53,6 +53,10 @@ while x < 5 {
     x = x + 1;
     $ // Token de prueba
 }
+
+y = 2 + 4
+
+x >= 1
 '''
 
 #Retorno de los tokens y el conteo de los mismos
