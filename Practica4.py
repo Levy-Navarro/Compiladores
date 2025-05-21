@@ -427,7 +427,3 @@ for instruccion in codigo_intermedio:
 print("\nCódigo Ensamblador Generado:")
 print(codigo_asm)
 
-# Para generar un ejecutable, necesitarías:
-# 1. Guardar el código ensamblador en un archivo .asm
-# 2. Ensamblarlo con NASM: nasm -f elf32 programa.asm
-# 3. Enlazarlo con ld: ld -m elf_i386 -s -o programa programa.o
