@@ -88,6 +88,6 @@ def parsear(codigo):
     return asignacion() and indice == len(tokens)
 
 #Ejemplos
-ejemplos = ["x = 5;", "y = x + 3;", "z = (y * 2) / 4;", "y = z + y;"]
+ejemplos = ["x = 5;", "y = y (x + 3;", "z = (y *) / 4;", "y = z + y"]
 for ejemplo in ejemplos:
     print(f"{ejemplo} -> {'Válido' if parsear(ejemplo) else 'Inválido'}")
